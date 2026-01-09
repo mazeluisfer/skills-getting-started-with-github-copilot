@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Display activity details including participants
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
