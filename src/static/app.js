@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p><strong>Participants:</strong></p>
             ${details.participants.length > 0 
               ? `<ul class="participants-list">
-                  ${details.participants.map(participant => `<li>${participant}</li>`).join('')}
+                  ${details.participants.map(email => `<li>${email}</li>`).join('')}
                  </ul>` 
               : '<p class="no-participants">No participants yet. Be the first to sign up!</p>'}
           </div>
