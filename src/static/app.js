@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      
+      // Clear and repopulate select dropdown
+      activitySelect.innerHTML = "";
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -30,11 +33,54 @@ document.addEventListener("DOMContentLoaded", () => {
             <p><strong>Participants:</strong></p>
             ${details.participants.length > 0 
               ? `<ul class="participants-list">
-                  ${details.participants.map(email => `<li>${email}</li>`).join('')}
+                  ${details.participants.map(email => `
+                    <li>
+                      <span class="participant-email">${email}</span>
+                      <button class="delete-btn" data-activity="${name}" data-email="${email}" title="Remove participant">
+                        ✕
+                      </button>
+                    </li>
+                  `).join('')}
                  </ul>` 
               : '<p class="no-participants">No participants yet. Be the first to sign up!</p>'}
           </div>
         `;
+
+        // Add delete button event listeners
+        activityCard.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const activityName = e.target.getAttribute('data-activity');
+            const email = e.target.getAttribute('data-email');
+            
+            if (confirm(`Remove ${email} from ${activityName}?`)) {
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(activityName)}/participants/${encodeURIComponent(email)}`,
+                  { method: 'DELETE' }
+                );
+                
+                if (response.ok) {
+                  // Refresh activities to update the list
+                  fetchActivities();
+                  messageDiv.textContent = `Successfully removed ${email} from ${activityName}`;
+                  messageDiv.className = 'success';
+                  messageDiv.classList.remove('hidden');
+                  setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+                } else {
+                  const result = await response.json();
+                  messageDiv.textContent = result.detail || 'Failed to remove participant';
+                  messageDiv.className = 'error';
+                  messageDiv.classList.remove('hidden');
+                }
+              } catch (error) {
+                console.error('Error removing participant:', error);
+                messageDiv.textContent = 'Failed to remove participant. Please try again.';
+                messageDiv.className = 'error';
+                messageDiv.classList.remove('hidden');
+              }
+            }
+          });
+        });
 
         activitiesList.appendChild(activityCard);
 
